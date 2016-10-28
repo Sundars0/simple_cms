@@ -1,5 +1,13 @@
 class SubjectsController < ApplicationController
+
+  layout 'admin'
+  
+  before_action :confirm_logged_in
+  before_action :set_subject_count, :only => [:new, :create, :edit, :update]
+  
+  
   def index
+    logger.debug("*** Testing the logger. ***")
     @subjects = Subject.sorted    
   end
 
@@ -8,7 +16,7 @@ class SubjectsController < ApplicationController
   end
 
   def new
-    @subject = Subject.new({:name => 'Default'})
+    @subject = Subject.new({:name => 'Default'})    
   end
 
   def create
@@ -20,7 +28,7 @@ class SubjectsController < ApplicationController
       flash[:notice] = "Subject created successfully"
       redirect_to(subjects_path)
     else
-      # If save fails, redisplay the form to fix problems
+      # If save fails, redisplay the form to fix problems      
       render('new')
     end
   end
@@ -38,7 +46,7 @@ class SubjectsController < ApplicationController
       # If update succeeds, redirect to the show action
       redirect_to(subject_path(@subject))
     else
-      # If save fails, redisplay the form to fix problems
+      # If save fails, redisplay the form to fix problems      
       render('edit')
     end
   end
@@ -57,6 +65,14 @@ class SubjectsController < ApplicationController
   private
 
     def subject_params
-      params.require(:subject).permit(:name, :position, :visible)      
+      params.require(:subject).permit(:name, :position, :visible,
+                                      :created_at)
+    end
+
+    def set_subject_count
+      @subject_count = Subject.count
+      if params[:action] == 'new' || params[:action] == 'create'
+        @subject_count += 1
+      end
     end
 end
